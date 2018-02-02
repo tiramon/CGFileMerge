@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -20,12 +21,16 @@ import java.util.Set;
  */
 public class CreateOutput {
 	public static void main(String[] args) throws IOException {
+
 		List<String> folders = Arrays.asList(args);
 		Set<String> importSet = new HashSet<>();
+		Set<String> knownPackages = new HashSet<>();
 		StringBuilder builder = new StringBuilder();
 		for (String folder : folders) {
-			handleFolder(folder, importSet, builder);
+			handleFolder(folder, importSet, knownPackages, builder, folder);
 		}
+
+		cleanImports(knownPackages, importSet);
 		File output = new File("Output.java");
 
 		try (PrintStream ps = new PrintStream(output)) {
@@ -36,15 +41,30 @@ public class CreateOutput {
 		}
 	}
 
-	private static void handleFolder(String folder, Set<String> importSet, StringBuilder builder) throws IOException {
+	private static void cleanImports(Set<String> knownPackages, Set<String> importSet) {
+		for (String pkg : knownPackages) {
+			System.err.println(pkg);
+		}
+
+		Iterator<String> it = importSet.iterator();
+		while (it.hasNext()) {
+			String imp = it.next();
+			if (knownPackages.contains(imp.substring("import ".length(), imp.lastIndexOf('.'))))
+				it.remove();
+		}
+	}
+
+	private static void handleFolder(String folder, Set<String> importSet, Set<String> knownPackages, StringBuilder builder, String baseFolder) throws IOException {
 		File srcFolder = new File(folder);
 		for (String fileString : srcFolder.list()) {
 			String fileSubString = folder + "/" + fileString;
 			File file = new File(fileSubString);
 			if (!file.isDirectory()) {
+				if (!folder.equals(baseFolder))
+					knownPackages.add(folder.replaceAll("/", ".").replaceAll("\\\\", ".").replace(baseFolder + ".", ""));
 				handleFile(fileSubString, importSet, builder);
 			} else {
-				handleFolder(fileSubString, importSet, builder);
+				handleFolder(fileSubString, importSet, knownPackages, builder, baseFolder);
 			}
 		}
 	}
@@ -53,7 +73,9 @@ public class CreateOutput {
 		try (BufferedReader br = new BufferedReader(new FileReader(file))) {
 			String line;
 			while ((line = br.readLine()) != null) {
-				if (line.startsWith("import ")) {
+				if (line.startsWith("package ")) {
+
+				} else if (line.startsWith("import ")) {
 					importSet.add(line);
 				} else {
 					if (line.startsWith("public class")) {
