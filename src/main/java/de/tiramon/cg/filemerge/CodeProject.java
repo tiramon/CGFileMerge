@@ -7,5 +7,4 @@ public interface CodeProject {
 	boolean isImportLine(String line);
 
 	String readImportFromLine(String line);
-
 }

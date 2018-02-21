@@ -14,7 +14,6 @@ public class Merger {
 	Set<String> importSet = new HashSet<>();
 
 	public String merge(Collection<CodeFile> collection) {
-
 		for (CodeFile file : collection) {
 			importSet.addAll(file.imports);
 		}
@@ -47,12 +46,10 @@ public class Merger {
 		return importSet;
 	}
 
-	public void writeFile(String filename, String content) throws FileNotFoundException {
-		File output = new File(filename);
+	public void writeFile(File outputFile, String content) throws FileNotFoundException {
+		System.err.println("writing to " + outputFile.getAbsolutePath());
 
-		System.err.println("writing to " + filename);
-
-		try (PrintStream ps = new PrintStream(output)) {
+		try (PrintStream ps = new PrintStream(outputFile)) {
 			ps.print(content);
 		}
 	}

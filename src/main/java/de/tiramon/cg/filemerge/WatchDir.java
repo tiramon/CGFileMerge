@@ -49,6 +49,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.WatchEvent;
+import java.nio.file.WatchEvent.Kind;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
 import java.nio.file.attribute.BasicFileAttributes;
@@ -57,6 +58,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import de.tiramon.cg.filemerge.java.JavaProject;
 
 /**
  * Example to watch a directory (or tree) for changes to files.
@@ -70,7 +73,7 @@ public class WatchDir {
 	private final Map<WatchKey, Path> keys;
 	private final boolean recursive;
 	private boolean trace = true;
-	private final String outputFile;
+	private final File outputFile;
 
 	@SuppressWarnings("unchecked")
 	static <T> WatchEvent<T> cast(WatchEvent<?> event) {
@@ -115,10 +118,10 @@ public class WatchDir {
 	 * 
 	 * @param project
 	 */
-	WatchDir(Path dir, boolean recursive, String outputFile) throws IOException {
+	WatchDir(Path dir, boolean recursive, File file) throws IOException {
 		watcher = FileSystems.getDefault().newWatchService();
 		keys = new HashMap<>();
-		this.outputFile = outputFile;
+		outputFile = file;
 		this.recursive = recursive;
 
 		if (recursive) {
@@ -181,25 +184,7 @@ public class WatchDir {
 					}
 				}
 
-				if (!Files.isDirectory(child) && child.toString().endsWith(project.getFileExtension())) {
-					System.out.format("%s: %s\n", event.kind().name(), child);
-					if (kind == ENTRY_DELETE) {
-						files.remove(child.toString());
-					} else if (kind == ENTRY_CREATE) {
-						files.put(child.toString(), readCodeFile(child.toString(), null));
-					} else if (kind == ENTRY_MODIFY) {
-						CodeFile file = files.get(child.toString());
-						readCodeFile(child.toString(), file);
-					}
-					Merger merger = new Merger();
-					String content = merger.merge(files.values());
-					try {
-						merger.writeFile(outputFile, content);
-					} catch (FileNotFoundException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-				}
+				handleRelevantFileChange(event.kind(), child);
 			}
 
 			// reset key and remove from set if directory no longer accessible
@@ -211,6 +196,28 @@ public class WatchDir {
 				if (keys.isEmpty()) {
 					break;
 				}
+			}
+		}
+	}
+
+	private void handleRelevantFileChange(Kind<?> kind, Path child) {
+		if (!Files.isDirectory(child) && child.toString().endsWith(project.getFileExtension())) {
+			System.out.format("%s: %s\n", kind.name(), child);
+			if (kind == ENTRY_DELETE) {
+				files.remove(child.toString());
+			} else if (kind == ENTRY_CREATE) {
+				files.put(child.toString(), readCodeFile(child.toString(), null));
+			} else if (kind == ENTRY_MODIFY) {
+				CodeFile file = files.get(child.toString());
+				readCodeFile(child.toString(), file);
+			}
+			Merger merger = new Merger();
+			String content = merger.merge(files.values());
+			try {
+				merger.writeFile(outputFile, content);
+			} catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
 		}
 	}
@@ -230,7 +237,6 @@ public class WatchDir {
 			String[] files = key.toFile().list(filter);
 			for (String f : files) {
 				String resolved = key.resolve(f).toString();
-				System.out.println(resolved);
 				this.files.put(resolved, readCodeFile(resolved, null));
 			}
 		}
@@ -245,15 +251,17 @@ public class WatchDir {
 
 	public static void main(String[] args) throws IOException {
 		// parse arguments
-		if (args.length == 0 || args.length > 2)
+		if (args.length < 2 || args.length > 3)
 			usage();
 		boolean recursive = false;
 		int dirArg = 0;
+		int targetArg = 1;
 		if (args[0].equals("-r")) {
-			if (args.length < 2)
+			if (args.length < 3)
 				usage();
 			recursive = true;
 			dirArg++;
+			targetArg++;
 		}
 
 		// register directory and process its events
@@ -263,7 +271,8 @@ public class WatchDir {
 		 * List<CodeFile> codeFiles = readCodeFiles(files);
 		 * System.out.println(new Merger().merge(codeFiles));
 		 */
-		WatchDir d = new WatchDir(dir, recursive, "C:\\Privat\\CGFileMerge\\Output.java");
+
+		WatchDir d = new WatchDir(dir, recursive, new File(args[targetArg]));
 		d.gatherFiles();
 		d.processEvents();
 	}
