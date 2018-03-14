@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -50,6 +51,7 @@ public class Merger {
 		System.err.println("writing to " + outputFile.getAbsolutePath());
 
 		try (PrintStream ps = new PrintStream(outputFile)) {
+			ps.println("//Version " + new Date());
 			ps.print(content);
 		}
 	}
