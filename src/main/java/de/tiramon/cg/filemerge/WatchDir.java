@@ -118,11 +118,11 @@ public class WatchDir {
 	 * 
 	 * @param project
 	 */
-	WatchDir(Path dir, boolean recursive, File file) throws IOException {
+	WatchDir(Path dir, File file) throws IOException {
 		watcher = FileSystems.getDefault().newWatchService();
 		keys = new HashMap<>();
 		outputFile = file;
-		this.recursive = recursive;
+		recursive = true;
 
 		if (recursive) {
 			System.out.format("Scanning %s ...\n", dir);
@@ -204,6 +204,7 @@ public class WatchDir {
 		if (!Files.isDirectory(child) && child.toString().endsWith(project.getFileExtension())) {
 			System.out.format("%s: %s\n", kind.name(), child);
 			if (kind == ENTRY_DELETE) {
+				// FIXME something is not working here
 				files.remove(child.toString());
 			} else if (kind == ENTRY_CREATE) {
 				files.put(child.toString(), readCodeFile(child.toString(), null));
@@ -223,7 +224,7 @@ public class WatchDir {
 	}
 
 	static void usage() {
-		System.err.println("usage: java WatchDir [-r] dir");
+		System.err.println("usage: java WatchDir dir outputfile");
 		System.exit(-1);
 	}
 
@@ -251,18 +252,10 @@ public class WatchDir {
 
 	public static void main(String[] args) throws IOException {
 		// parse arguments
-		if (args.length < 2 || args.length > 3)
+		if (args.length != 2)
 			usage();
-		boolean recursive = false;
 		int dirArg = 0;
 		int targetArg = 1;
-		if (args[0].equals("-r")) {
-			if (args.length < 3)
-				usage();
-			recursive = true;
-			dirArg++;
-			targetArg++;
-		}
 
 		// register directory and process its events
 		Path dir = Paths.get(args[dirArg]);
@@ -272,7 +265,7 @@ public class WatchDir {
 		 * System.out.println(new Merger().merge(codeFiles));
 		 */
 
-		WatchDir d = new WatchDir(dir, recursive, new File(args[targetArg]));
+		WatchDir d = new WatchDir(dir, new File(args[targetArg]));
 		d.gatherFiles();
 		d.processEvents();
 	}
