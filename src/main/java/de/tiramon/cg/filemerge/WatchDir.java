@@ -54,6 +54,7 @@ import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -138,10 +139,10 @@ public class WatchDir {
 
 	/**
 	 * Process all events for keys queued to the watcher
+	 * @throws FileNotFoundException 
 	 */
-	void processEvents() {
+	void processEvents() throws FileNotFoundException {
 		for (;;) {
-
 			// wait for key to be signalled
 			WatchKey key;
 			try {
@@ -200,7 +201,7 @@ public class WatchDir {
 		}
 	}
 
-	private void handleRelevantFileChange(Kind<?> kind, Path child) {
+	private void handleRelevantFileChange(Kind<?> kind, Path child) throws FileNotFoundException {
 		if (!Files.isDirectory(child) && child.toString().endsWith(project.getFileExtension())) {
 			System.out.format("%s: %s\n", kind.name(), child);
 			if (kind == ENTRY_DELETE) {
@@ -211,19 +212,13 @@ public class WatchDir {
 				CodeFile file = files.get(child.toString());
 				readCodeFile(child.toString(), file);
 			}
-			Merger merger = new Merger();
-			String content = merger.merge(files.values());
-			try {
-				merger.writeFile(outputFile, content);
-			} catch (FileNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			System.out.println(Arrays.toString(files.keySet().toArray()));
+			createOutput();
 		}
 	}
 
 	static void usage() {
-		System.err.println("usage: java WatchDir [-r] dir");
+		System.err.println("usage: java WatchDir srcdir outputdir");
 		System.exit(-1);
 	}
 
@@ -253,28 +248,23 @@ public class WatchDir {
 		// parse arguments
 		if (args.length < 2 || args.length > 3)
 			usage();
-		boolean recursive = false;
 		int dirArg = 0;
 		int targetArg = 1;
-		if (args[0].equals("-r")) {
-			if (args.length < 3)
-				usage();
-			recursive = true;
-			dirArg++;
-			targetArg++;
-		}
+		
 
 		// register directory and process its events
 		Path dir = Paths.get(args[dirArg]);
-		/*
-		 * Set<String> files = new WatchDir(dir, recursive).gatherFiles();
-		 * List<CodeFile> codeFiles = readCodeFiles(files);
-		 * System.out.println(new Merger().merge(codeFiles));
-		 */
-
-		WatchDir d = new WatchDir(dir, recursive, new File(args[targetArg]));
+		
+		WatchDir d = new WatchDir(dir, true, new File(args[targetArg]));
 		d.gatherFiles();
+		d.createOutput();
 		d.processEvents();
+	}
+
+	private void createOutput() throws FileNotFoundException {
+		Merger merger = new Merger();
+		String content = merger.merge(files.values());
+		merger.writeFile(outputFile, content);				
 	}
 
 	private static List<CodeFile> readCodeFiles(Set<String> files) throws FileNotFoundException, IOException {
