@@ -119,20 +119,16 @@ public class WatchDir {
 	 * 
 	 * @param project
 	 */
-	WatchDir(Path dir, boolean recursive, File file) throws IOException {
+	WatchDir(Path dir, File file) throws IOException {
 		watcher = FileSystems.getDefault().newWatchService();
 		keys = new HashMap<>();
 		outputFile = file;
-		this.recursive = recursive;
+		recursive = true;
 
-		if (recursive) {
-			System.out.format("Scanning %s ...\n", dir);
-			registerAll(dir);
-			System.out.println("Done.");
-		} else {
-			register(dir);
-		}
-
+		System.out.format("Scanning %s ...\n", dir);
+		registerAll(dir);
+		System.out.println("Done.");
+		
 		// enable trace after initial registration
 		trace = true;
 	}
@@ -205,6 +201,7 @@ public class WatchDir {
 		if (!Files.isDirectory(child) && child.toString().endsWith(project.getFileExtension())) {
 			System.out.format("%s: %s\n", kind.name(), child);
 			if (kind == ENTRY_DELETE) {
+				// FIXME something is not working here
 				files.remove(child.toString());
 			} else if (kind == ENTRY_CREATE) {
 				files.put(child.toString(), readCodeFile(child.toString(), null));
@@ -246,16 +243,14 @@ public class WatchDir {
 
 	public static void main(String[] args) throws IOException {
 		// parse arguments
-		if (args.length < 2 || args.length > 3)
+		if (args.length != 2)
 			usage();
 		int dirArg = 0;
 		int targetArg = 1;
-		
-
 		// register directory and process its events
 		Path dir = Paths.get(args[dirArg]);
 		
-		WatchDir d = new WatchDir(dir, true, new File(args[targetArg]));
+		WatchDir d = new WatchDir(dir, new File(args[targetArg]));
 		d.gatherFiles();
 		d.createOutput();
 		d.processEvents();
