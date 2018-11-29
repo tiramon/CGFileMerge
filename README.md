@@ -7,12 +7,12 @@ This little program has the following features (or should have when the last cha
 * remove all package lines and merge everything in the default package
 * merge imports of all files found identified by the line starting with `import ` and remove those of in project imports
 * replace all modifiers in front of class, interface, enum and remove it `public class` -> `class` 
-* writes everything into a `Output.java` at the location where the program was started
+* writes everything into a output file at the given location
 
 
 ## How to build
 `mvn clean package`
 
 ## How to start
-`java -jar CGFileMerge-0.0.1-SNAPSHOT.jar -r /PATH/TO/PROJECT/ROOT/src/main/java /PATH/TO/OTHER/ROOT/src/main/java`
+`java -jar CGFileMerge-0.0.1-SNAPSHOT.jar /PATH/TO/PROJECT/ROOT/src/main/java /PATH/TO/OTHER/ROOT/src/main/java/Output.java`
 
