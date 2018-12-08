@@ -13,13 +13,15 @@ import java.util.Set;
 
 public class Merger {
 	Set<String> importSet = new HashSet<>();
+	Set<String> knownPackages = new HashSet<>();
 
 	public String merge(Collection<CodeFile> collection) {
 		for (CodeFile file : collection) {
 			importSet.addAll(file.imports);
+			knownPackages.add(file.filePackage);
 		}
 
-		importSet = cleanImports(importSet, new HashSet<>());
+		importSet = cleanImports(importSet, knownPackages);
 
 		List<String> cleanImports = new ArrayList<>(importSet);
 		cleanImports.sort((a, b) -> a.compareTo(b));

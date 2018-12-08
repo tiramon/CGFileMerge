@@ -100,8 +100,7 @@ public class WatchDir {
 	}
 
 	/**
-	 * Register the given directory, and all its sub-directories, with the
-	 * WatchService.
+	 * Register the given directory, and all its sub-directories, with the WatchService.
 	 */
 	private void registerAll(final Path start) throws IOException {
 		// register directory and sub-directories
@@ -116,7 +115,7 @@ public class WatchDir {
 
 	/**
 	 * Creates a WatchService and registers the given directory
-	 * 
+	 *
 	 * @param project
 	 */
 	WatchDir(Path dir, File file) throws IOException {
@@ -128,14 +127,15 @@ public class WatchDir {
 		System.out.format("Scanning %s ...\n", dir);
 		registerAll(dir);
 		System.out.println("Done.");
-		
+
 		// enable trace after initial registration
 		trace = true;
 	}
 
 	/**
 	 * Process all events for keys queued to the watcher
-	 * @throws FileNotFoundException 
+	 * 
+	 * @throws FileNotFoundException
 	 */
 	void processEvents() throws FileNotFoundException {
 		for (;;) {
@@ -249,7 +249,7 @@ public class WatchDir {
 		int targetArg = 1;
 		// register directory and process its events
 		Path dir = Paths.get(args[dirArg]);
-		
+
 		WatchDir d = new WatchDir(dir, new File(args[targetArg]));
 		d.gatherFiles();
 		d.createOutput();
@@ -259,7 +259,7 @@ public class WatchDir {
 	private void createOutput() throws FileNotFoundException {
 		Merger merger = new Merger();
 		String content = merger.merge(files.values());
-		merger.writeFile(outputFile, content);				
+		merger.writeFile(outputFile, content);
 	}
 
 	private static List<CodeFile> readCodeFiles(Set<String> files) throws FileNotFoundException, IOException {
@@ -275,6 +275,7 @@ public class WatchDir {
 			file = new CodeFile();
 		}
 		file.path = path;
+		file.imports.clear();
 		System.out.println("reading " + path);
 		try (BufferedReader br = new BufferedReader(new FileReader(path))) {
 			String line;
