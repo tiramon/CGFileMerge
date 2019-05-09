@@ -289,6 +289,9 @@ public class WatchDir {
 					if (line.startsWith("public class")) {
 						line = line.replace("public class", "class");
 						System.err.println(line);
+					} else if (line.startsWith("public abstract class")) {
+						line = line.replace("public abstract class", "abstract class");
+						System.err.println(line);
 					} else if (line.startsWith("public interface")) {
 						line = line.replace("public interface", "interface");
 						System.err.println(line);
