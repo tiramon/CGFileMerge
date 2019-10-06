@@ -12,6 +12,7 @@ This little program has the following features (or should have when the last cha
 
 ## How to build
 `mvn clean package`
+
 Result jar is created in the target folder inside of the project
 
 ## How to start
