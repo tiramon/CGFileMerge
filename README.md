@@ -20,16 +20,18 @@ Result jar is created in the target folder inside of the project
 
 ## How to use with maven without local build
 
-`<dependencies>
-		<dependency>
-			<groupId>com.github.Tiramon</groupId>
-			<artifactId>CGFileMerge</artifactId>
-			<version>HEAD</version>
-		</dependency>
-	</dependencies>
-	<repositories>
-		<repository>
-			<id>jitpack.io</id>
-			<url>https://jitpack.io</url>
-		</repository>
-	</repositories>`
+```
+<dependencies>
+  <dependency>
+    <groupId>com.github.Tiramon</groupId>
+    <artifactId>CGFileMerge</artifactId>
+    <version>HEAD</version>
+  </dependency>
+</dependencies>
+<repositories>
+  <repository>
+    <id>jitpack.io</id>
+    <url>https://jitpack.io</url>
+  </repository>
+</repositories>
+```
