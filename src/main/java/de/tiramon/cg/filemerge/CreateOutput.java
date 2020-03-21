@@ -14,9 +14,8 @@ import java.util.Set;
 /**
  * I need to output everything in one file for the contest ...<br>
  * <br>
- * Source Folders are given as parameters seperated by spaces. Sub folders are
- * automatically searched for other folders and files
- * 
+ * Source Folders are given as parameters seperated by spaces. Sub folders are automatically searched for other folders and files
+ *
  * @author tiramon
  */
 public class CreateOutput {
@@ -78,7 +77,10 @@ public class CreateOutput {
 				} else if (line.startsWith("import ")) {
 					importSet.add(line);
 				} else {
-					if (line.startsWith("public class")) {
+					if (line.startsWith("public final class")) {
+						line = line.replace("public final class", "final class");
+						System.err.println(line);
+					} else if (line.startsWith("public class")) {
 						line = line.replace("public class", "class");
 						System.err.println(line);
 					} else if (line.startsWith("public interface")) {
@@ -86,6 +88,9 @@ public class CreateOutput {
 						System.err.println(line);
 					} else if (line.startsWith("public enum")) {
 						line = line.replace("public enum", "enum");
+						System.err.println(line);
+					} else if (line.startsWith("public abstract")) {
+						line = line.replace("public abstract", "abstract");
 						System.err.println(line);
 					}
 					builder.append(line + "\n");

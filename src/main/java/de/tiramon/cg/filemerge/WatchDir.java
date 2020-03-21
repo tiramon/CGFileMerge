@@ -134,7 +134,7 @@ public class WatchDir {
 
 	/**
 	 * Process all events for keys queued to the watcher
-	 * 
+	 *
 	 * @throws FileNotFoundException
 	 */
 	void processEvents() throws FileNotFoundException {
@@ -286,7 +286,10 @@ public class WatchDir {
 				} else if (project.isImportLine(line)) {
 					file.imports.add(line);
 				} else {
-					if (line.startsWith("public class")) {
+					if (line.startsWith("public final class")) {
+						line = line.replace("public final class", "final class");
+						System.err.println(line);
+					} else if (line.startsWith("public class")) {
 						line = line.replace("public class", "class");
 						System.err.println(line);
 					} else if (line.startsWith("public interface")) {
