@@ -215,7 +215,7 @@ public class WatchDir {
 	}
 
 	static void usage() {
-		System.err.println("usage: java WatchDir srcdir outputdir");
+		System.err.println("usage: java WatchDir srcdir outputdir [once]");
 		System.exit(-1);
 	}
 
@@ -253,6 +253,9 @@ public class WatchDir {
 		WatchDir d = new WatchDir(dir, new File(args[targetArg]));
 		d.gatherFiles();
 		d.createOutput();
+		if (args[2] != "once") {
+			return;
+		}
 		d.processEvents();
 	}
 
@@ -291,6 +294,9 @@ public class WatchDir {
 						System.err.println(line);
 					} else if (line.startsWith("public class")) {
 						line = line.replace("public class", "class");
+						System.err.println(line);
+					} else if (line.startsWith("public abstract class")) {
+						line = line.replace("public abstract class", "abstract class");
 						System.err.println(line);
 					} else if (line.startsWith("public interface")) {
 						line = line.replace("public interface", "interface");
