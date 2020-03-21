@@ -18,3 +18,18 @@ Result jar is created in the target folder inside of the project
 ## How to start
 `java -jar CGFileMerge-0.0.1-SNAPSHOT.jar /PATH/TO/PROJECT/ROOT/src/main/java /PATH/TO/PROJECT/ROOT/Output.java`
 
+## How to use with maven without local build
+
+`<dependencies>
+		<dependency>
+			<groupId>com.github.Tiramon</groupId>
+			<artifactId>CGFileMerge</artifactId>
+			<version>HEAD</version>
+		</dependency>
+	</dependencies>
+	<repositories>
+		<repository>
+			<id>jitpack.io</id>
+			<url>https://jitpack.io</url>
+		</repository>
+	</repositories>`
