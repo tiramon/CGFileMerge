@@ -253,7 +253,7 @@ public class WatchDir {
 		WatchDir d = new WatchDir(dir, new File(args[targetArg]));
 		d.gatherFiles();
 		d.createOutput();
-		if (args[2] != "once") {
+		if (args[2].equals("once")) {
 			return;
 		}
 		d.processEvents();
