@@ -100,7 +100,8 @@ public class WatchDir {
 	}
 
 	/**
-	 * Register the given directory, and all its sub-directories, with the WatchService.
+	 * Register the given directory, and all its sub-directories, with the
+	 * WatchService.
 	 */
 	private void registerAll(final Path start) throws IOException {
 		// register directory and sub-directories
@@ -253,7 +254,7 @@ public class WatchDir {
 		WatchDir d = new WatchDir(dir, new File(args[targetArg]));
 		d.gatherFiles();
 		d.createOutput();
-		if (args.length == 3 && args[2].equals("once")) {
+		if (args.length > 2 && args[2].equals("once")) {
 			return;
 		}
 		d.processEvents();
